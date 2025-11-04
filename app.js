@@ -13,6 +13,7 @@
   let ignoreUpdates = false;
   let lastDownload = 0;
   let lastUpload = 0;
+  let safetyTimer = null;
 
   // Theme toggle between gradient and solid background
   themeToggle.addEventListener('click', () => {
@@ -82,10 +83,19 @@
 
     let chosenServer = null;
 
+    if (safetyTimer) clearTimeout(safetyTimer);
+    safetyTimer = setTimeout(() => {
+      if (running && lastDownload === 0 && lastUpload === 0) {
+        serverInfoEl.textContent = 'Error: timeout waiting for measurements';
+        setRunning(false);
+      }
+    }, 45000);
+
     const callbacks = {
       error: (err) => {
         if (ignoreUpdates) return;
         serverInfoEl.textContent = `Error: ${err}`;
+        if (safetyTimer) clearTimeout(safetyTimer);
         setRunning(false);
       },
       serverDiscovery: () => {
@@ -121,6 +131,7 @@
       },
       uploadComplete: () => {
         if (ignoreUpdates) return;
+        if (safetyTimer) clearTimeout(safetyTimer);
         setRunning(false);
         const latencyText = latencyEl.textContent.replace(' ms','');
         addHistoryItem(lastDownload, lastUpload, latencyText === '—' ? undefined : parseInt(latencyText,10));
