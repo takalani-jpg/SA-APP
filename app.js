@@ -70,8 +70,8 @@
   const ndtConfig = {
     userAcceptedDataPolicy: true,
     // Workers must be absolute URLs when using the library from a CDN
-    downloadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.13.0/dist/ndt7-download-worker.min.js',
-    uploadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.13.0/dist/ndt7-upload-worker.min.js',
+    downloadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.0.6/src/ndt7-download-worker.min.js',
+    uploadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.0.6/src/ndt7-upload-worker.min.js',
   };
 
   startBtn.addEventListener('click', async () => {
