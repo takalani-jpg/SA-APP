@@ -30,7 +30,11 @@
   }
 
   async function preflightLocate(maxAttempts = 3){
-    const url = 'https://locate.measurementlab.net/v2/nearest/ndt/ndt7';
+    // If manual server override is set, skip locate
+    if (ndtConfig.server){
+      return { ok: true, data: { override: ndtConfig.server } };
+    }
+    const url = '/api/locate';
     let lastError = null;
     for (let attempt = 1; attempt <= maxAttempts; attempt++){
       try{
@@ -43,7 +47,9 @@
       }catch(e){
         lastError = e;
       }
-      await new Promise(r=>setTimeout(r, attempt*1000));
+      // exponential backoff with jitter
+      const delay = Math.min(30000, attempt * 2000) + Math.floor(Math.random()*500);
+      await new Promise(r=>setTimeout(r, delay));
     }
     return { ok: false, error: lastError };
   }
@@ -93,6 +99,15 @@
     downloadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.0.6/src/ndt7-download-worker.min.js',
     uploadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.0.6/src/ndt7-upload-worker.min.js',
   };
+
+  // Optional manual server override via ?server=hostname
+  try{
+    const sp = new URLSearchParams(location.search);
+    const serverOverride = sp.get('server');
+    if (serverOverride && /^[a-z0-9.-]+$/i.test(serverOverride)){
+      ndtConfig.server = serverOverride;
+    }
+  }catch{}
 
   startBtn.addEventListener('click', async () => {
     if (running) return;
@@ -161,10 +176,10 @@
     try{
       // Preflight locate to avoid opaque errors like [object Object]
       serverInfoEl.textContent = 'Finding best server…';
-      const locate = await preflightLocate(3);
+      const locate = await preflightLocate(5);
       if (!locate.ok){
         const msg = (typeof locate.error === 'object') ? JSON.stringify(locate.error) : String(locate.error);
-        throw new Error(`Locate failed: ${msg}`);
+        throw new Error(`Locate failed: ${msg}${ndtConfig.server ? '' : ' | Tip: add ?server=HOSTNAME to the URL to bypass locate.'}`);
       }
       // Run combined test (download then upload)
       const rc = await window.ndt7.test(ndtConfig, callbacks);
