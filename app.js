@@ -98,6 +98,8 @@
     // Workers must be absolute URLs when using the library from a CDN
     downloadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.0.6/src/ndt7-download-worker.min.js',
     uploadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.0.6/src/ndt7-upload-worker.min.js',
+    // Force ndt7 to use our cached proxy to avoid direct 429s
+    loadbalancer: (typeof location !== 'undefined' ? (location.origin + '/api/locate') : '/api/locate'),
   };
 
   // Optional manual server override via ?server=hostname
