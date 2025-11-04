@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SA Internet Speed Test</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="gradient">
+  <header class="container">
+    <div class="brand">
+      <div class="logo">SA SpeedTest</div>
+      <button id="themeToggle" class="btn btn-ghost" title="Toggle gradient">Gradient</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="gauge" id="gauge">
+        <div class="gauge-value" id="gaugeValue">0.0</div>
+        <div class="gauge-unit">Mbps</div>
+      </div>
+      <div class="controls">
+        <button id="startBtn" class="btn btn-primary">Start Test</button>
+        <button id="stopBtn" class="btn btn-outline" disabled>Stop</button>
+      </div>
+      <div class="server" id="serverInfo">Server: —</div>
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <div class="card-title">Download</div>
+        <div class="card-value" id="downloadMbps">0.0 Mbps</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Upload</div>
+        <div class="card-value" id="uploadMbps">0.0 Mbps</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Latency</div>
+        <div class="card-value" id="latencyMs">— ms</div>
+      </div>
+    </section>
+
+    <section class="history">
+      <div class="history-title">Session History</div>
+      <ul id="historyList" class="history-list"></ul>
+    </section>
+  </main>
+
+  <!-- ndt7 client via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.0.6/src/ndt7.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
