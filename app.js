@@ -29,6 +29,25 @@
     gaugeValEl.textContent = formatMbps(mbps);
   }
 
+  async function preflightLocate(maxAttempts = 3){
+    const url = 'https://locate.measurementlab.net/v2/nearest/ndt/ndt7';
+    let lastError = null;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++){
+      try{
+        const res = await fetch(url, { cache: 'no-store' });
+        const js = await res.json().catch(()=>({}));
+        if (res.ok && js && Array.isArray(js.results)){
+          return { ok: true, data: js };
+        }
+        lastError = js && js.error ? js.error : { status: res.status, body: js };
+      }catch(e){
+        lastError = e;
+      }
+      await new Promise(r=>setTimeout(r, attempt*1000));
+    }
+    return { ok: false, error: lastError };
+  }
+
   async function measureLatency(iterations = 5){
     try{
       const url = 'https://www.gstatic.com/generate_204';
@@ -94,7 +113,8 @@
     const callbacks = {
       error: (err) => {
         if (ignoreUpdates) return;
-        serverInfoEl.textContent = `Error: ${err}`;
+        const msg = (typeof err === 'object') ? JSON.stringify(err) : String(err);
+        serverInfoEl.textContent = `Error: ${msg}`;
         if (safetyTimer) clearTimeout(safetyTimer);
         setRunning(false);
       },
@@ -139,6 +159,13 @@
     };
 
     try{
+      // Preflight locate to avoid opaque errors like [object Object]
+      serverInfoEl.textContent = 'Finding best server…';
+      const locate = await preflightLocate(3);
+      if (!locate.ok){
+        const msg = (typeof locate.error === 'object') ? JSON.stringify(locate.error) : String(locate.error);
+        throw new Error(`Locate failed: ${msg}`);
+      }
       // Run combined test (download then upload)
       const rc = await window.ndt7.test(ndtConfig, callbacks);
       // rc==0 means success; non-zero already handled via error callback.
