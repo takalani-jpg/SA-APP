@@ -154,6 +154,12 @@
           setGauge(lastDownload);
           downloadEl.textContent = `${formatMbps(lastDownload)} Mbps`;
         }
+        // Prefer server-reported TCPInfo MinRTT for latency when available (microseconds -> ms)
+        if (m && m.Source === 'server' && m.Data && m.Data.TCPInfo && typeof m.Data.TCPInfo.MinRTT === 'number'){
+          const rttUs = m.Data.TCPInfo.MinRTT;
+          const rttMs = Math.max(0, Math.round(rttUs / 1000));
+          latencyEl.textContent = `${rttMs} ms`;
+        }
       },
       downloadComplete: () => {},
       uploadStart: () => {},
@@ -164,6 +170,12 @@
           uploadEl.textContent = `${formatMbps(lastUpload)} Mbps`;
           // Show current phase on the gauge as well
           setGauge(lastUpload);
+        }
+        // Prefer server-reported TCPInfo MinRTT for latency when available (microseconds -> ms)
+        if (m && m.Source === 'server' && m.Data && m.Data.TCPInfo && typeof m.Data.TCPInfo.MinRTT === 'number'){
+          const rttUs = m.Data.TCPInfo.MinRTT;
+          const rttMs = Math.max(0, Math.round(rttUs / 1000));
+          latencyEl.textContent = `${rttMs} ms`;
         }
       },
       uploadComplete: () => {
