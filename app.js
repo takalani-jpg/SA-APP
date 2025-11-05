@@ -34,7 +34,7 @@
     if (ndtConfig.server){
       return { ok: true, data: { override: ndtConfig.server } };
     }
-    const url = '/api/locate';
+    const url = 'https://locate.measurementlab.net/v2/nearest/ndt/ndt7';
     let lastError = null;
     for (let attempt = 1; attempt <= maxAttempts; attempt++){
       try{
@@ -99,7 +99,7 @@
     downloadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.0.6/src/ndt7-download-worker.min.js',
     uploadworkerfile: 'https://cdn.jsdelivr.net/npm/@m-lab/ndt7@0.0.6/src/ndt7-upload-worker.min.js',
     // Force ndt7 to use our cached proxy to avoid direct 429s
-    loadbalancer: (typeof location !== 'undefined' ? (location.origin + '/api/locate') : '/api/locate'),
+    loadbalancer: 'https://locate.measurementlab.net/v2/nearest/ndt/ndt7',
   };
 
   // Optional manual server override via ?server=hostname
